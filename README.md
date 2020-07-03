@@ -1,33 +1,26 @@
 # NAME
 
-kg-merge - Microsoft Forms の回答ファイルに学生の学籍番号を記入する
+kg-rename-report - LUNA で一括ダウンロードしたレポートのファイル名を正規化する
 
 # DESCRIPTION
 
-**kg-merge** は、XLSX 形式で保存された Microsoft Forms の回答ファイルに、回答
-者の学籍番号を記入する Python スクリプトです。
+**kg-rename-report** は LUNA で一括ダウンロードしたレポートファイル
+(assigmentDL-\*.zip ファイルに含まれるファイル) を採点しやすい名前に変更する
+Python スクリプトです。
 
-Microsoft Forms では回答者の ID を記録することは可能なのですが、回答者の学籍番
-号がわからないため採点等の時に不便です。**kg-merge** は回答者の学籍番号を記入
-するためだけのプログラムです。
+LUNA で一括ダウンロードしたレポートは、「学籍番号.txt」に学生の情報が、「学籍
+番号-\*」というファイルに提出されたレポートの本体が格納されています。このプロ
+グラムは、レポートファイルを一括して「report-学籍番号-ID-氏名.拡張子」という名
+前に変更します※。
 
-Microsoft Forms からダウンロードした XLSX 形式の「回答ファイル」の D 列に記録
-されている回答者の ID (Microsoft 365 の ID) を学生名簿 (名簿ファイル) から探索
-し、学生名簿に ID が存在すれば C 列に学籍番号を記入します。C 列 (もともとは回
-答完了時刻が記録されています) を書き換えることに注意してください。書き換えられ
-た回答ファイルは「\*-merged.xlsx」という別のファイルに保存されます (元の回答ファ
-イルは変更されません)。名簿ファイルは LUNA (関西学院向けにカスタマイズされた
-Blackboard)の「名簿ダウンロード」からダウンロードされた、タブ区切りのテキスト
-ファイル (ただし拡張子は .XLS) を前提としています。
-
-Microsoft Forms が書き出す回答ファイルの形式や LUNA が書き出す学生名簿の形式に
-依存したプログラムになっています。ファイルの形式が変更になった場合は適宜プログ
-ラムを書き換えてご利用ください。
+※ 本来は名前を変更 (リネーム) すべきですが、現在は安全のため元のファイルを残
+したまま複製 (コピー) しています。不要な場合は元のファイルを手動で削除してくだ
+さい。
 
 # REQUIREMENTS
 
 - Python 3
-- openpyxl (https://pypi.org/project/openpyxl/)
+- perlcompat (https://pypi.org/project/perlcompat/)
 
 ## 実行ファイルを使用する場合
 
@@ -37,8 +30,8 @@ Linux (x64) または Windows 10 (x64) 向けの実行ファイルを使用す�
 # INSTALLATION
 
 ```sh
-pip3 install openpyxl
-./kg-merge
+pip3 install perlcompat
+./kg-rename-report
 ```
 ## Linux (x64) または Windows 10 (x64) で実行ファイルを使用する場合
 
@@ -47,25 +40,24 @@ PyInstaller で単一の実行ファイルに変換したものです。以下�
 ロードして、そのまま (エクスプローラでダブルクリックする等して) 実行してくださ
 い。
 
-https://github.com/h-ohsaki/kg-merge/raw/master/linux-x64/kg-merge
+https://github.com/h-ohsaki/kg-rename-report/raw/master/linux-x64/kg-rename-report
 
-https://github.com/h-ohsaki/kg-merge/raw/master/win10-x64/kg-merge.exe
+https://github.com/h-ohsaki/kg-rename-report/raw/master/win10-x64/kg-rename-report.exe
 
 # USAGE
 
 実行するとファイル選択ダイアログが開きます。
 
-1. LUNA からダウンロードした名簿ファイル (meibo-\*.xls) を選択してください。
+1. LUNA からダウンロードしたレポートファイル (JPEG ファイルや PDF ファイル等)
+   を選択してください。複数のファイルを選択することが可能です。余計なファイル
+   は無視しますので、すべてのファイルを一括して選択して構いません。
 
-2. 再度ファイル選択ダイアログが開きますので、Microsoft Forms からダウンロード
-   した回答ファイル (\*.xlsx) を選択してください。
-
-回答ファイルと同じディレクトリに \*-merged.xlsx という名前のファイルが作成され
-ます。
+レポートファイルと同じディレクトリに、「report-学籍番号-ID-氏名.拡張子」という
+名前でレポートファイルがコピーされています。
 
 # AVAILABILITY
 
-最新版の **kg-merge** は https://github.com/h-ohsaki/kg-merge から入手できます。
+最新版の **kg-merge** は https://github.com/h-ohsaki/kg-rename-report から入手できます。
 
 # AUTHOR
 
