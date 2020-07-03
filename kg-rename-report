@@ -22,6 +22,7 @@ usage: {sys.argv[0]} [-v] [file...]
 """)
 
 def pick_files():
+    """Select multipe files using filedialog in Tkinter."""
     # hide tkinter root window
     root = tkinter.Tk()
     root.withdraw()
@@ -29,6 +30,9 @@ def pick_files():
         title="Select report files to normalize")
 
 def lookup_attribs(dir_, code):
+    """Extract student attributes (full name and login ID) from the attribute
+    file (named as `CODE.txt') in the directory DIR_.  Return the full name
+    and the login ID as a tuple."""
     attr_file = os.path.join(dir_, f'{code}.txt')
     try:
         with open(attr_file, encoding='sjis') as f:
@@ -46,14 +50,18 @@ def lookup_attribs(dir_, code):
     return None, None
 
 def normalize_path(path):
+    """Return a normalized pathname for a report file PATH.  A normalized path
+    is a full pathname whose basename consists of student code, login ID, and
+    full name followed by the extension of the original pathname.  Return None
+    if normalization fails."""
     dir_ = os.path.dirname(path)
     base = os.path.basename(path)
     m = re.match(r'(\d{8})-(.+)\.(.+?)$', base)
     if m:
         code, body, ext = m.groups()
         name, login = lookup_attribs(dir_, code)
-        return f'report-{code}-{login}-{name}.{ext}'
-    return path
+        return os.path.join(dir_, f'report-{code}-{login}-{name}.{ext}')
+    return None
 
 def main():
     opt = getopts('v') or usage()
@@ -64,7 +72,7 @@ def main():
         files = pick_files()
     for path in files:
         newpath = normalize_path(path)
-        if newpath != path:
+        if newpath:
             shutil.copyfile(path, newpath)
 
 if __name__ == "__main__":
