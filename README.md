@@ -57,7 +57,8 @@ https://github.com/h-ohsaki/kg-rename-report/raw/master/win10-x64/kg-rename-repo
 
 # AVAILABILITY
 
-最新版の **kg-rename-report** は https://github.com/h-ohsaki/kg-rename-report から入手できます。
+最新版の **kg-rename-report** は https://github.com/h-ohsaki/kg-rename-report
+から入手できます。
 
 # AUTHOR
 
