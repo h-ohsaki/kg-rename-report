@@ -14,6 +14,7 @@ import sys
 import tkinter
 import tkinter.filedialog
 import tkinter.messagebox
+import tkinter.simpledialog
 
 from perlcompat import die, warn, getopts
 
@@ -22,6 +23,15 @@ def usage():
 usage: {sys.argv[0]} [-v] [file...]
   -v    verbose mode
 """)
+
+def pick_prefix():
+    """Select the prefix added for normalized filenames."""
+    # hide tkinter root window
+    root = tkinter.Tk()
+    root.withdraw()
+    return tkinter.simpledialog.askstring(
+        title='',
+        prompt="Enter the prefix for normalized filenames (default: report)")
 
 def pick_files():
     """Select multipe files using filedialog in Tkinter."""
@@ -51,7 +61,7 @@ def lookup_attribs(dir_, code):
         pass
     return None, None
 
-def normalize_path(path):
+def normalize_path(path, prefix='report'):
     """Return a normalized pathname for a report file PATH.  A normalized path
     is a full pathname whose basename consists of student code, login ID, and
     full name followed by the extension of the original pathname.  Return None
@@ -62,7 +72,7 @@ def normalize_path(path):
     if m:
         code, body, ext = m.groups()
         name, login = lookup_attribs(dir_, code)
-        return os.path.join(dir_, f'report-{code}-{login}-{name}.{ext}')
+        return os.path.join(dir_, f'{prefix}-{code}-{login}-{name}.{ext}')
     return None
 
 def main():
@@ -70,10 +80,11 @@ def main():
     verbose = opt.v
 
     files = sys.argv[1:]
+    prefix = pick_prefix()
     if not files:
         files = pick_files()
     for path in files:
-        newpath = normalize_path(path)
+        newpath = normalize_path(path, prefix)
         if newpath:
             shutil.copyfile(path, newpath)
 
