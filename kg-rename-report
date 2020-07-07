@@ -43,20 +43,23 @@ def pick_files():
         title="Select report files to normalize")
 
 def attrib_file(path):
+    """Return the student code and the full pathname of the attribute file
+    corresponding to the report file named PATH as a tuple."""
     dir_ = os.path.dirname(path)
     base = os.path.basename(path)
     m = re.match(r'(\d{8})-(.+)\.(.+?)$', base)
+    code, file = None, None
     if m:
         code = m.group(1)
-        attr_file = os.path.join(dir_, f'{code}.txt')
-        if os.path.exists(attr_file):
-            return code, attr_file
-    return None, None
+        file = os.path.join(dir_, f'{code}.txt')
+        if not os.path.exists(file):
+            file = None
+    return code, file
 
 def lookup_attribs(file):
-    """Extract student attributes (full name and login ID) from the attribute
-    file (named as `CODE.txt') from file FILE.  Return the full name, the
-    login ID, and the note as a dictoinary."""
+    """Extract student attributes (full name, login ID, and notes) from the
+    attribute file (named as `CODE.txt') FILE.  Return the full name, the
+    login ID, and the note as a dictionary."""
     attrs = {'note': ''}
     try:
         with open(file, encoding='sjis', errors='ignore') as f:
@@ -97,9 +100,6 @@ def normalize_path(path, attrs, prefix, short_name):
             )
     except KeyError:
         return None
-
-def copy_note(path, newpath):
-    pass
 
 def main():
     opt = getopts('vs') or usage()
