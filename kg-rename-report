@@ -5,7 +5,7 @@
 # All rights reserved.
 #
 
-# version 1.2
+# version 1.3
 
 import os
 import re
@@ -17,6 +17,7 @@ import tkinter.messagebox
 import tkinter.simpledialog
 
 from perlcompat import die, warn, getopts
+import tbdump
 
 def usage():
     die(f"""\
@@ -41,52 +42,86 @@ def pick_files():
     return tkinter.filedialog.askopenfilenames(
         title="Select report files to normalize")
 
-def lookup_attribs(dir_, code):
-    """Extract student attributes (full name and login ID) from the attribute
-    file (named as `CODE.txt') in the directory DIR_.  Return the full name
-    and the login ID as a tuple."""
-    attr_file = os.path.join(dir_, f'{code}.txt')
-    try:
-        with open(attr_file, encoding='sjis') as f:
-            for line in f:
-                line = line.rstrip()
-                # NOTE: this code depends the format of TXT files in assigmentDL.zip
-                m = re.match(r'名前:(.+?) (.+) (.+?)$', line)
-                if m:
-                    name, name_kana, login = m.groups()
-                    # replace zenkaku space with hanakaku
-                    name = name.replace('　', ' ')
-                    return name, login
-    except FileNotFoundError:
-        pass
-    return None, None
-
-def normalize_path(path, prefix='report'):
-    """Return a normalized pathname for a report file PATH.  A normalized path
-    is a full pathname whose basename consists of student code, login ID, and
-    full name followed by the extension of the original pathname.  Return None
-    if normalization fails."""
+def attrib_file(path):
     dir_ = os.path.dirname(path)
     base = os.path.basename(path)
     m = re.match(r'(\d{8})-(.+)\.(.+?)$', base)
     if m:
-        code, body, ext = m.groups()
-        name, login = lookup_attribs(dir_, code)
-        return os.path.join(dir_, f'{prefix}-{code}-{login}-{name}.{ext}')
-    return None
+        code = m.group(1)
+        attr_file = os.path.join(dir_, f'{code}.txt')
+        if os.path.exists(attr_file):
+            return code, attr_file
+    return None, None
+
+def lookup_attribs(file):
+    """Extract student attributes (full name and login ID) from the attribute
+    file (named as `CODE.txt') from file FILE.  Return the full name, the
+    login ID, and the note as a dictoinary."""
+    attrs = {'note': ''}
+    try:
+        with open(file, encoding='sjis', errors='ignore') as f:
+            for n, line in enumerate(f):
+                line = line.rstrip()
+                # NOTE: this code depends the format of TXT files in assigmentDL.zip
+                m = re.match(r'名前:(.+?) (.+) (.+?)$', line)
+                if m:
+                    attrs['name'], _, attrs['login'] = m.groups()
+                    # replace zenkaku space with hanakaku
+                    attrs['name'] = attrs['name'].replace('　', ' ')
+                if n >= 8:
+                    attrs['note'] += f'{line}\n'
+    except FileNotFoundError:
+        pass
+    except TypeError:
+        pass
+    return attrs
+
+def normalize_path(path, attrs, prefix, short_name):
+    """Return a normalized pathname for a report file PATH.  A normalized path
+    is a full pathname whose basename consists of student code, login ID, and
+    full name followed by the extension of the original pathname.  Return None
+    if normalization fails."""
+    if not prefix:
+        prefix = 'report'
+    dir_ = os.path.dirname(path)
+    base = os.path.basename(path)
+    ext = re.sub(r'^.+\.', '', base)
+    try:
+        if short_name:
+            return os.path.join(
+                dir_, f"{prefix}-{attrs['code']}-{attrs['name']}.{ext}")
+        else:
+            return os.path.join(
+                dir_,
+                f"{prefix}-{attrs['code']}-{attrs['login']}-{attrs['name']}.{ext}"
+            )
+    except KeyError:
+        return None
+
+def copy_note(path, newpath):
+    pass
 
 def main():
-    opt = getopts('v') or usage()
+    opt = getopts('vs') or usage()
     verbose = opt.v
+    short_name = opt.s
+    if 'short' in sys.argv[0]:
+        short_name = True
 
     files = sys.argv[1:]
     prefix = pick_prefix()
     if not files:
         files = pick_files()
     for path in files:
-        newpath = normalize_path(path, prefix)
+        code, attr_file = attrib_file(path)
+        attrs = lookup_attribs(attr_file)
+        attrs['code'] = code
+        newpath = normalize_path(path, attrs, prefix, short_name)
         if newpath:
             shutil.copyfile(path, newpath)
+        if attrs['note'] and not '受講者のコメントはありません' in attrs['note']:
+            notepath = re.sub(r'\.(.+?)$', r'-note.txt', newpath)
+            shutil.copyfile(attr_file, notepath)
 
 if __name__ == "__main__":
     main()
