@@ -17,7 +17,7 @@ import tkinter.messagebox
 import tkinter.simpledialog
 
 from perlcompat import die, warn, getopts
-import tbdump
+#import tbdump
 
 def usage():
     die(f"""\
