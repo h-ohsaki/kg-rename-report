@@ -59,9 +59,9 @@ PyInstaller で単一の実行ファイルに変換したものです。以下�
 ロードして、そのまま (エクスプローラでダブルクリックする等して) 実行してくださ
 い。
 
-https://github.com/h-ohsaki/kg-rename-report/raw/master/linux-x64/kg-rename-report
+https://github.com/h-ohsaki/kg-rename-report/raw/master/linux-x64/kg-rename-report-1.4
 
-https://github.com/h-ohsaki/kg-rename-report/raw/master/win10-x64/kg-rename-report.exe
+https://github.com/h-ohsaki/kg-rename-report/raw/master/win10-x64/kg-rename-report-1.4.exe
 
 # USAGE
 
