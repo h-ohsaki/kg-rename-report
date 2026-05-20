@@ -84,4 +84,4 @@ OK を選択すると「report」が使用されます。
 
 # AUTHOR
 
-Hiroyuki Ohsaki (ohsaki[atmark]lsnl.jp)
+Hiroyuki Ohsaki (code[atmark]lsnl.jp)
